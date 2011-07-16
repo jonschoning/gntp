@@ -125,6 +125,5 @@ class GrowlNotifier(object):
 		s.send(data.encode('utf8','replace'))
 		response = gntp.parse_gntp(s.recv(1024))
 		s.close()
-		
-		logger.debug('From : %s:%s <%s>\n%s',self.hostname,self.port,response.__class__,response)
+		logger.debug('From : %s:%s <%s>\n%s',self.hostname,self.port,response.__class__,response.encode(throw_validate_errors=False))
 		return response

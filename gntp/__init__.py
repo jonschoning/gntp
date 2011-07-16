@@ -2,6 +2,9 @@ import re
 import hashlib
 import time
 import platform
+import logging
+
+logger = logging.getLogger(__name__)
 
 __version__ = '0.4'
 
@@ -202,12 +205,19 @@ class _GNTPBase(object):
 		parts = self.raw.split('\r\n\r\n')
 		self.info = self._parse_info(data)
 		self.headers = self._parse_dict(parts[0])
-	def encode(self):
+	def encode(self, throw_validate_errors=True):
 		'''
 		Encode a GNTP Message
+		@param throw_validate_errors: (Optional) Specifies if validate() errors should be raised
 		@return: GNTP Message ready to be sent
 		'''
-		self.validate()
+		try:
+			self.validate()
+		except ParseError as e:
+			if throw_validate_errors:
+				raise
+			else:
+				logger.warning(e)
 		EOL = u'\r\n'
 		
 		message = self._format_info() + EOL
@@ -286,12 +296,19 @@ class GNTPRegister(_GNTPBase):
 			
 		self.notifications.append(notice)
 		self.add_header('Notifications-Count', len(self.notifications))
-	def encode(self):
+	def encode(self, throw_validate_errors=True):
 		'''
 		Encode a GNTP Registration Message
+		@param throw_validate_errors: (Optional) Specifies if validate() errors should be raised
 		@return: GNTP Registration Message ready to be sent
 		'''
-		self.validate()
+		try:
+			self.validate()
+		except ParseError as e:
+			if throw_validate_errors:
+				raise
+			else:
+				logger.warning(e)
 		EOL = u'\r\n'
 		
 		message = self._format_info() + EOL
@@ -359,12 +376,19 @@ class GNTPNotice(_GNTPBase):
 				notice['Data'] = self._decode_binary(part,notice)
 				#open('notice.png','wblol').write(notice['Data'])
 				self.resources[ notice.get('Identifier') ] = notice
-	def encode(self):
+	def encode(self, throw_validate_errors=True):
 		'''
 		Encode a GNTP Notification Message
+		@param throw_validate_errors: (Optional) Specifies if validate() errors should be raised
 		@return: GNTP Notification Message ready to be sent
 		'''
-		self.validate()
+		try:
+			self.validate()
+		except ParseError as e:
+			if throw_validate_errors:
+				raise
+			else:
+				logger.warning(e)
 		EOL = u'\r\n'
 		
 		message = self._format_info() + EOL
